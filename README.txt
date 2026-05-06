@@ -1,49 +1,75 @@
-ISO 15939 Measurement Process Simulator - Implementation V2
+================================================================================
+ISO 15939 Measurement Process Simulator — V3
+================================================================================
+Course        : Software Project II
+Assignment    : Individual Java Swing GUI Application
 
-Student Name: Ahmet Alp Keleş
-Student ID: 202328038
-Course: Software Project II
-Project Type: Individual Java Swing GUI Application
+--------------------------------------------------------------------------------
+RUNNING
+--------------------------------------------------------------------------------
+  java -cp out Main
 
-V2 Scope
-- Java Swing desktop application with CardLayout wizard structure
-- Separate JPanel implementation for Profile, Define, Plan, Collect, and Analyse steps
-- Step indicator with active and completed step status
-- Profile validation with user-friendly warning messages
-- Define step with JRadioButton/ButtonGroup single-selection for quality type and mode
-- Scenario selection based on selected mode
-- ScenarioRepository with two modes: Education and Health
-- At least two scenarios for each mode
-- Plan step with read-only JTable for dimensions and metrics
-- Collect step with raw values and calculated metric scores
-- ScoreCalculator service for metric score and dimension score calculations
-- GapAnalyzer service for lowest dimension, gap value, quality level, and improvement message
-- Analyse step with progress bars, improved gap analysis area, and RadarChartPanel bonus preview
-- Model, GUI, service, and app state separation
-- No external libraries
+--------------------------------------------------------------------------------
+PROJECT STRUCTURE
+--------------------------------------------------------------------------------
+src/
+├── Main.java                          Entry point (EDT launch)
+├── app/
+│   └── AppState.java                  Shared session state between panels
+├── model/
+│   ├── UserProfile.java               Step 1 profile data
+│   ├── Metric.java                    Single measurable metric
+│   ├── Dimension.java                 Quality dimension grouping metrics
+│   ├── Scenario.java                  Complete measurement scenario
+│   ├── Direction.java                 Enum: HIGHER_IS_BETTER / LOWER_IS_BETTER
+│   └── QualityType.java               Enum: PRODUCT_QUALITY / PROCESS_QUALITY
+├── service/
+│   ├── ScenarioRepository.java        All hard-coded scenario data (centralised)
+│   ├── ScoreCalculator.java           ISO 15939 metric & dimension score formulas
+│   ├── GapAnalyzer.java               Identifies lowest-scoring dimension
+│   └── GapAnalysisResult.java         Immutable result object for gap analysis
+└── gui/
+    ├── MainFrame.java                 Main window + CardLayout controller
+    ├── WizardPanel.java               Abstract base class for all wizard steps
+    ├── StepIndicatorPanel.java        Top progress bar (✓ done / active / pending)
+    ├── ProfilePanel.java              Step 1: profile input & validation
+    ├── DefinePanel.java               Step 2: quality type / mode / scenario
+    ├── PlanPanel.java                 Step 3: read-only measurement plan table
+    ├── CollectPanel.java              Step 4: raw values + calculated scores
+    ├── AnalysePanel.java              Step 5: dimension bars + gap analysis
+    └── RadarChartPanel.java           Bonus: radar chart (Graphics2D)
 
-V2 Improvements Compared to V1
-- Added service/GapAnalyzer.java
-- Added service/GapAnalysisResult.java
-- Moved gap analysis logic out of AnalysePanel
-- Fixed progress bar scaling to use 0-100 percentage values
-- Replaced long single-line gap label with a multiline JTextArea
-- Added gui/RadarChartPanel.java for radar chart visualization
-- Updated mode selection to use JRadioButton and ButtonGroup
-- Updated application title and README for V2
+--------------------------------------------------------------------------------
+SCENARIOS
+--------------------------------------------------------------------------------
+Education mode:
+  • Scenario C — Team Alpha  (5 dimensions, 10 metrics)
+  • Scenario D — Team Beta   (3 dimensions,  6 metrics)
 
-Compile Instructions
-Open a terminal in the project root folder and run:
+Health mode:
+  • Scenario A — Hospital System  (4 dimensions, 8 metrics)
+  • Scenario B — Clinic System    (3 dimensions, 6 metrics)
 
-javac -d out src/Main.java src/app/*.java src/model/*.java src/service/*.java src/gui/*.java
+--------------------------------------------------------------------------------
+SCORE FORMULAS
+--------------------------------------------------------------------------------
+Higher is better: score = 1 + ((value - min) / (max - min)) * 4
+Lower  is better: score = 5 - ((value - min) / (max - min)) * 4
+Result clamped to [1.0, 5.0] and rounded to nearest 0.5.
 
-Run Instructions
-After compiling, run:
+Dimension score: Σ(metricScore × metricCoeff) / Σ(metricCoeff)
+Gap value      : 5.0 - dimensionScore
 
-java -cp out Main
+Quality levels:
+  4.5 – 5.0  → Excellent
+  3.5 – 4.49 → Good
+  2.5 – 3.49 → Needs Improvement
+  1.0 – 2.49 → Poor
 
-Submission Notes
-- This is the V2 GitHub submission version.
-- The project uses Java SE standard library only.
-- The scenario data is hard-coded inside ScenarioRepository as required.
-- Student name and student ID fields are completed for submission. Add a screenshot if requested by your instructor.
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+• No external libraries — only Java SE standard library + Swing.
+• No file I/O — all scenario data is hard-coded in ScenarioRepository.java.
+• Compilable and runnable from the command line with no IDE dependency.
+================================================================================

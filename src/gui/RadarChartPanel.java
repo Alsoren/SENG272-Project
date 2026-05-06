@@ -13,7 +13,14 @@ import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.util.List;
 
+/**
+ * RadarChartPanel (Bonus)
+ * Draws a radar (spider) chart of all dimension scores using Java 2D Graphics.
+ * Each axis of the polygon represents one quality dimension, scaled from 0 to 5.
+ * The filled polygon shows the actual scores; concentric grid lines show scale levels.
+ */
 public class RadarChartPanel extends JPanel {
+
     private Scenario scenario;
 
     public RadarChartPanel() {
@@ -21,6 +28,11 @@ public class RadarChartPanel extends JPanel {
         setBackground(Color.WHITE);
     }
 
+    /**
+     * Sets the scenario to visualise and triggers a repaint.
+     *
+     * @param scenario the fully scored scenario, or null to show a placeholder message
+     */
     public void setScenario(Scenario scenario) {
         this.scenario = scenario;
         repaint();
@@ -47,6 +59,7 @@ public class RadarChartPanel extends JPanel {
         int centerY = height / 2 + 10;
         int radius = Math.min(width, height) / 3;
 
+        // Draw concentric grid polygons for scale levels 1–5
         g2.setColor(new Color(230, 230, 230));
         for (int level = 1; level <= 5; level++) {
             double levelRadius = radius * (level / 5.0);
@@ -54,6 +67,7 @@ public class RadarChartPanel extends JPanel {
             g2.draw(grid);
         }
 
+        // Draw axis lines from the centre to each vertex
         g2.setColor(new Color(180, 180, 180));
         for (int i = 0; i < count; i++) {
             double angle = getAngle(i, count);
@@ -62,11 +76,13 @@ public class RadarChartPanel extends JPanel {
             g2.drawLine(centerX, centerY, x, y);
         }
 
+        // Collect dimension scores for the filled polygon
         double[] values = new double[count];
         for (int i = 0; i < count; i++) {
             values[i] = dimensions.get(i).getDimensionScore();
         }
 
+        // Draw the filled score polygon
         Path2D scoreShape = createPolygonPath(count, centerX, centerY, radius, values);
         g2.setColor(new Color(70, 130, 180, 70));
         g2.fill(scoreShape);
@@ -74,6 +90,7 @@ public class RadarChartPanel extends JPanel {
         g2.setStroke(new BasicStroke(2f));
         g2.draw(scoreShape);
 
+        // Draw dimension labels outside each vertex
         FontMetrics fm = g2.getFontMetrics();
         g2.setColor(Color.DARK_GRAY);
         for (int i = 0; i < count; i++) {
@@ -89,13 +106,23 @@ public class RadarChartPanel extends JPanel {
         g2.dispose();
     }
 
-    private Path2D createPolygonPath(int count, int centerX, int centerY, double radius, double[] values) {
+    /**
+     * Creates a polygon path for either a grid level (values == null) or the score shape.
+     *
+     * @param count   number of dimensions / axes
+     * @param cx      centre x
+     * @param cy      centre y
+     * @param radius  maximum radius (corresponds to score 5.0)
+     * @param values  actual scores; null means draw at full radius (grid polygon)
+     */
+    private Path2D createPolygonPath(int count, int cx, int cy, double radius, double[] values) {
         Path2D path = new Path2D.Double();
         for (int i = 0; i < count; i++) {
+            // Scale score to [0, 1]; null values draw the full grid polygon
             double ratio = values == null ? 1.0 : Math.max(0.0, Math.min(5.0, values[i])) / 5.0;
             double angle = getAngle(i, count);
-            double x = centerX + Math.cos(angle) * radius * ratio;
-            double y = centerY + Math.sin(angle) * radius * ratio;
+            double x = cx + Math.cos(angle) * radius * ratio;
+            double y = cy + Math.sin(angle) * radius * ratio;
             if (i == 0) {
                 path.moveTo(x, y);
             } else {
@@ -106,10 +133,16 @@ public class RadarChartPanel extends JPanel {
         return path;
     }
 
+    /**
+     * Returns the angle (in radians) for the i-th axis, starting from the top (−π/2).
+     */
     private double getAngle(int index, int count) {
         return -Math.PI / 2 + (2 * Math.PI * index / count);
     }
 
+    /**
+     * Truncates a dimension name to 16 characters to prevent label overlap.
+     */
     private String shorten(String text) {
         if (text.length() <= 16) {
             return text;

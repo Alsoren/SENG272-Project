@@ -13,13 +13,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Step 2 - Define Quality Dimensions
+ * The user selects exactly one quality type, one measurement mode, and one scenario.
+ * JRadioButton with ButtonGroup enforces the single-selection constraint for each group.
+ * Restores all selections when the user navigates back.
+ */
 public class DefinePanel extends WizardPanel {
+
     private final JRadioButton productQualityButton;
     private final JRadioButton processQualityButton;
     private final ArrayList<JRadioButton> modeButtons;
@@ -29,7 +37,9 @@ public class DefinePanel extends WizardPanel {
         super(appState, scenarioRepository);
         modeButtons = new ArrayList<>();
 
+        // Title label
         JLabel title = new JLabel("Step 2 - Define Quality Dimensions");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
         title.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(title, BorderLayout.NORTH);
 
@@ -39,6 +49,7 @@ public class DefinePanel extends WizardPanel {
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        // 2a: Quality Type - ButtonGroup ensures only one can be selected at a time
         productQualityButton = new JRadioButton(QualityType.PRODUCT_QUALITY.getDisplayName());
         processQualityButton = new JRadioButton(QualityType.PROCESS_QUALITY.getDisplayName());
         ButtonGroup qualityTypeGroup = new ButtonGroup();
@@ -49,19 +60,23 @@ public class DefinePanel extends WizardPanel {
         qualityPanel.add(productQualityButton);
         qualityPanel.add(processQualityButton);
 
+        // 2b: Mode - ButtonGroup ensures only one mode is active at a time
         JPanel modePanel = new JPanel();
         ButtonGroup modeGroup = new ButtonGroup();
         for (String mode : scenarioRepository.getModes()) {
             JRadioButton modeButton = new JRadioButton(mode);
+            // Refresh scenario list whenever a different mode is selected
             modeButton.addActionListener(e -> refreshScenarios());
             modeGroup.add(modeButton);
             modePanel.add(modeButton);
             modeButtons.add(modeButton);
         }
 
+        // 2c: Scenario - JComboBox naturally enforces single selection
         scenarioComboBox = new JComboBox<>();
         refreshScenarios();
 
+        // Layout rows: Quality Type, Mode, Scenario
         gbc.gridx = 0; gbc.gridy = 0;
         formPanel.add(new JLabel("Quality Type:"), gbc);
         gbc.gridx = 1;
@@ -80,8 +95,10 @@ public class DefinePanel extends WizardPanel {
         add(formPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Repopulates the scenario combo box based on the currently selected mode.
+     */
     private void refreshScenarios() {
-        // Scenario list depends on the selected measurement mode.
         scenarioComboBox.removeAllItems();
         String selectedMode = getSelectedMode();
         if (selectedMode == null) {
@@ -93,6 +110,9 @@ public class DefinePanel extends WizardPanel {
         }
     }
 
+    /**
+     * Returns the label of the currently selected mode radio button, or null if none selected.
+     */
     private String getSelectedMode() {
         for (JRadioButton button : modeButtons) {
             if (button.isSelected()) {
@@ -102,10 +122,12 @@ public class DefinePanel extends WizardPanel {
         return null;
     }
 
-    @Override
+    /**
+     * Restores quality type, mode, and scenario selections when the user navigates back.
+     */
     @Override
     public void onEnterStep() {
-        // Restore quality type, mode, and scenario when the user returns with the Back button.
+        // Restore quality type selection
         QualityType savedQualityType = appState.getQualityType();
         if (savedQualityType == QualityType.PRODUCT_QUALITY) {
             productQualityButton.setSelected(true);
@@ -113,6 +135,7 @@ public class DefinePanel extends WizardPanel {
             processQualityButton.setSelected(true);
         }
 
+        // Restore mode selection and reload scenario list
         String savedMode = appState.getMode();
         if (savedMode != null) {
             for (JRadioButton button : modeButtons) {
@@ -124,6 +147,7 @@ public class DefinePanel extends WizardPanel {
             refreshScenarios();
         }
 
+        // Restore scenario selection in the combo box
         Scenario savedScenario = appState.getSelectedScenario();
         if (savedScenario != null) {
             for (int i = 0; i < scenarioComboBox.getItemCount(); i++) {
@@ -136,6 +160,11 @@ public class DefinePanel extends WizardPanel {
         }
     }
 
+    /**
+     * Validates that quality type, mode, and scenario are all selected.
+     * Saves the selections into AppState before proceeding.
+     */
+    @Override
     public boolean validateStep() {
         if (!productQualityButton.isSelected() && !processQualityButton.isSelected()) {
             JOptionPane.showMessageDialog(this, "Please select one quality type to continue.");
@@ -154,6 +183,7 @@ public class DefinePanel extends WizardPanel {
             return false;
         }
 
+        // Determine and persist quality type
         QualityType selectedQualityType = productQualityButton.isSelected()
                 ? QualityType.PRODUCT_QUALITY
                 : QualityType.PROCESS_QUALITY;

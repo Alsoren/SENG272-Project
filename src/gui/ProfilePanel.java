@@ -12,9 +12,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 
+/**
+ * Step 1 - Profile
+ * Collects username, school, and session name from the user.
+ * Validates that all fields are filled before allowing navigation to the next step.
+ * Restores previously entered data when the user navigates back.
+ */
 public class ProfilePanel extends WizardPanel {
+
     private final JTextField usernameField;
     private final JTextField schoolField;
     private final JTextField sessionNameField;
@@ -22,10 +30,13 @@ public class ProfilePanel extends WizardPanel {
     public ProfilePanel(AppState appState, ScenarioRepository scenarioRepository) {
         super(appState, scenarioRepository);
 
+        // Title label at the top of the panel
         JLabel title = new JLabel("Step 1 - Profile");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
         title.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(title, BorderLayout.NORTH);
 
+        // Form with three labeled input fields
         JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(30, 80, 30, 80));
 
@@ -40,6 +51,7 @@ public class ProfilePanel extends WizardPanel {
         formPanel.add(new JLabel("Session Name:"));
         formPanel.add(sessionNameField);
 
+        // Center the form vertically
         JPanel wrapper = new JPanel();
         wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
         wrapper.add(Box.createVerticalGlue());
@@ -48,10 +60,11 @@ public class ProfilePanel extends WizardPanel {
         add(wrapper, BorderLayout.CENTER);
     }
 
-    @Override
+    /**
+     * Restores previously entered profile data when the user navigates back to this step.
+     */
     @Override
     public void onEnterStep() {
-        // Restore previously entered profile data when the user navigates back to this step.
         UserProfile profile = appState.getUserProfile();
         if (profile == null) {
             return;
@@ -61,6 +74,11 @@ public class ProfilePanel extends WizardPanel {
         sessionNameField.setText(profile.getSessionName());
     }
 
+    /**
+     * Validates that all three fields are non-empty before proceeding.
+     * Saves valid profile data into AppState.
+     */
+    @Override
     public boolean validateStep() {
         String username = usernameField.getText().trim();
         String school = schoolField.getText().trim();
@@ -79,6 +97,7 @@ public class ProfilePanel extends WizardPanel {
             return false;
         }
 
+        // Persist the profile in shared application state
         appState.setUserProfile(new UserProfile(username, school, sessionName));
         return true;
     }
