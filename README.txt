@@ -1,8 +1,10 @@
 ================================================================================
-ISO 15939 Measurement Process Simulator — V3
+ISO 15939 Measurement Process Simulator
 ================================================================================
 Course        : Software Project II
 Assignment    : Individual Java Swing GUI Application
+Name          : Ahmet Alp Keleş
+Student ID    : 202328038
 
 --------------------------------------------------------------------------------
 RUNNING
