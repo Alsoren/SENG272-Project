@@ -105,6 +105,13 @@ Quality levels:
   1.0 - 2.49  ->  Poor
 
 --------------------------------------------------------------------------------
+AI Usage Declaration
+--------------------------------------------------------------------------------
+AI assistance was used in the following part of this project:
+RadarChartPanel.java — The radar chart implementation using Java 2D Graphics (Graphics2D) was developed with AI assistance. Specifically, the polygon path calculation using trigonometric functions (Math.cos / Math.sin), the angle distribution formula for each axis, and the coordinate mapping from score values to screen pixels were areas where AI guidance was utilized.
+
+
+--------------------------------------------------------------------------------
 TECHNICAL NOTES
 --------------------------------------------------------------------------------
   - Java SE 17 or higher required
