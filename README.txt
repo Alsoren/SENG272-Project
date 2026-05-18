@@ -125,3 +125,8 @@ TECHNICAL NOTES
   - Bonus: Radar chart implemented with Java 2D Graphics (Graphics2D)
 
 ================================================================================
+
+--------------------------------------------------------------------------------
+PRESENTATION VIDEO
+--------------------------------------------------------------------------------
+Video Link: https://drive.google.com/file/d/1ng9Nv_Vl5UfIvV7-LXMDiqR5YHoPiZyp/view?usp=drive_link
